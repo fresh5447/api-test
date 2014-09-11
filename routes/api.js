@@ -34,9 +34,30 @@ router.post("/test", function(req, res) {
 });
 
 router.post("/questions", function(req, res) {
-  var question = new Question({ email: req.body.email, question: req.body.question });
+  var question = new Question({
+    code: (new Date()).getTime().toString(),
+    email: req.body.email,
+    question: req.body.question
+  });
+
   question.save(function(err, postedQuestion) {
     res.json(postedQuestion);
+  });
+});
+
+router.get("/questions", function(req, res) {
+  Question.find({}).exec(function(err, result) {
+    res.json(result);
+  });
+});
+
+router.get("/questions/:questionCode", function(req, res) {
+  Question.findOne({ code: req.params.questionCode }).exec(function(err, question) {
+    if (question) {
+      res.json(question);
+    } else {
+      res.json(404, { error: 'no question found for that id' } );
+    }
   });
 });
 
