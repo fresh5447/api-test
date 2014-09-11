@@ -60,5 +60,23 @@ app.use(function(err, req, res, next) {
     });
 });
 
+var mongoose = require("mongoose");
+mongoose.connect(process.env.MONGOHQ_URL);
+
+var questionSchema = new mongoose.Schema({
+  code: String,
+  email: String,
+  question: String
+});
+
+var answerSchema = new mongoose.Schema({
+  code: String,
+  email: String,
+  questionCode: String,
+  answer: String
+});
+
+var Question = mongoose.model('Question', questionSchema);
+var Answer = mongoose.model('Answer', answerSchema);
 
 module.exports = app;
