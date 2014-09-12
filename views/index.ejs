@@ -28,6 +28,21 @@
           refreshView({ questions: data });
         });
 
+        $(".output").on("click", "button", function(e) {
+          var $button = $(this);
+          var deleteFromDOM = function() {
+            // DELETE from the DOM
+            $button.parents("tr").remove();
+          }
+
+          // DELETE Through the API
+          $.ajax("/api/questions/" + $button.data("code"), { type: 'DELETE' }).then(function(result) {
+            deleteFromDOM();
+          });
+
+          return false;
+        });
+
       });
     </script>
 
@@ -45,6 +60,7 @@
         <tr>
           <td>{{email}}</td>
           <td>{{question}}</td>
+          <td><button type="button" class="btn btn-danger" data-code="{{code}}">-</button></td>
         </tr>
       {{else}}
         <tr><td>No questions found</td></tr>
