@@ -16,16 +16,18 @@
       $(function() {
         var source   = $("#template").html();
         var template = Handlebars.compile(source);
+        var data = {};
 
-        var refreshView = function(data){
+        var refreshView = function(){
             var html = template(data);
             $(".output").html(html);
         };
 
         refreshView({});
 
-        $.ajax("/api/questions").then(function(data) {
-          refreshView({ questions: data });
+        $.ajax("/api/questions").then(function(list) {
+          data = { questions: list };
+          refreshView();
         });
 
         $(".output").on("click", "button", function(e) {
@@ -43,6 +45,32 @@
           return false;
         });
 
+        $(".output").on("dblclick", ".question-body", function() {
+            var $this = $(this);
+            var index = $this.parents("tr").data("index");
+            var question = data.questions[index];
+            question.editing = true;
+            refreshView();
+            $(".output tr[data-index=" + index + "] input").focus();
+        });
+
+        $(".output").on("keyup", ".question-input input", function(e) {
+            if (e.keyCode === 13) {
+              var $this = $(this);
+              var code = $this.parents("tr").data("code");
+              var newVal = $this.val();
+              var index = $this.parents("tr").data("index");
+              var question = data.questions[index];
+
+              $.ajax("/api/questions/" + code, { type: 'PUT', data: { question: newVal } } ).then(function(updateQuestion) {
+                question.question = $this.val();
+                question.editing = false;
+                refreshView();
+              });
+
+            }
+          });
+
       });
     </script>
 
@@ -57,9 +85,15 @@
         <th>Question</th>
       </tr>
       {{#each questions}}
-        <tr>
+        <tr data-code="{{code}}" data-index="{{@index}}">
           <td>{{email}}</td>
-          <td>{{question}}</td>
+          <td>
+            {{#if editing}}
+              <div class="question-input"><input value="{{question}}"></div>
+            {{else}}
+              <div class="question-body">{{question}}</div>
+            {{/if}}
+          </td>
           <td><button type="button" class="btn btn-danger" data-code="{{code}}">-</button></td>
         </tr>
       {{else}}

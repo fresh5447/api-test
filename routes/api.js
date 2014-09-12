@@ -60,6 +60,32 @@ router.delete("/questions/:questionCode", function(req, res) {
   });
 });
 
+router.put('/questions/:questionCode', function(req, res) {
+  Question.findOne({ code: req.params.questionCode }, function(err, question) {
+    if (err) {
+      console.log('Error on lookup!', err);
+      return res.json(500, { error: 'could not process request'});
+    }
+    if (question) {
+      if (req.body.email) {
+        question.email = req.body.email;
+      }
+      if (req.body.question) {
+        question.question = req.body.question
+      }
+      question.save(function (err, question) {
+        if (err) {
+          console.log('Error on save!', err);
+          return res.json(500, { error: 'could not process request'});
+        }
+        res.json(question);
+      });
+    } else {
+      res.json(404, { error: 'not found' });
+    }
+  });
+});
+
 router.get("/questions/:questionCode", function(req, res) {
   Question.findOne({ code: req.params.questionCode }).exec(function(err, question) {
     if (question) {
