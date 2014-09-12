@@ -51,6 +51,15 @@ router.get("/questions", function(req, res) {
   });
 });
 
+router.delete("/questions/:questionCode", function(req, res) {
+  Question.findOne({ code: req.params.questionCode }).remove().exec(function(err) {
+    if (err) {
+      res.json(500, { error: 'we suck' });
+    }
+    res.json({ message: 'document delete' });
+  });
+});
+
 router.get("/questions/:questionCode", function(req, res) {
   Question.findOne({ code: req.params.questionCode }).exec(function(err, question) {
     if (question) {
